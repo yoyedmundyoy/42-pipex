@@ -7,7 +7,7 @@ RM := rm -rf
 
 all: $(NAME)
 
-$(NAME):
+$(NAME): $(SRCS)
 	@make all -C libft
 	@$(CC) $(CFLAGS) $(SRCS) -o $(NAME)
 
