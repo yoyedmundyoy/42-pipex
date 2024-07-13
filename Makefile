@@ -1,6 +1,6 @@
 NAME := pipex
-SRCS := src/pipex.c \
-libft/libft.a
+LIBFT := libft/libft.a
+SRCS := src/pipex.c $(LIBFT)
 CC := cc
 CFLAGS := -Wall -Wextra -Werror
 RM := rm -rf
@@ -8,8 +8,10 @@ RM := rm -rf
 all: $(NAME)
 
 $(NAME): $(SRCS)
-	@make all -C libft
 	@$(CC) $(CFLAGS) $(SRCS) -o $(NAME)
+
+$(LIBFT):
+	@make all -C libft
 
 fclean: clean
 	@$(RM) $(NAME)
