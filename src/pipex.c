@@ -11,12 +11,22 @@ void exit_message(int exit_code)
 	exit(0);
 }
 
+char *get_path(char* cmd, char *envp[])
+{
+
+}
+
 void execute(char* cmd, char *envp[])
 {
+	char **l_cmd;
+	char *path;
+
 	if (cmd || envp)
 		ft_putstr_fd("execute", 2);
-	// get path
-	// get l_cmd
+	
+	l_cmd = ft_split(cmd, ' ');
+	path = get_path(l_cmd[0], envp);
+
 	// execve(path, l_cmd, envp)
 	// if execve fails, handle error, print error message, free and exit
 }
