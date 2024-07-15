@@ -11,9 +11,63 @@ void exit_message(int exit_code)
 	exit(0);
 }
 
-char *get_path(char* cmd, char *envp[])
+void free_arr(char **arr)
 {
+	while (arr)
+	{
+		
+		free(arr);
+		arr = next;
+	}
+}
 
+char *get_env_path(char *envp[])
+{
+	char *name;
+	int i;
+	int j;
+
+	i = 0;
+	while (envp[i])
+	{
+		j = 0;
+		while (envp[i][j] && envp[i][j] != '=')
+			++j;
+		name = ft_substr(envp[i], 0, j);
+		if (!ft_strcmp("PATH", name))
+		{
+			free(name);
+			return(envp[i] + j + 1);
+		}
+		free(name);
+		++i;
+	}
+	return (NULL);
+}
+
+char *find_path(char* cmd, char *envp[])
+{
+	char **env_paths;
+	char *temp_path;
+	char *path;
+	int i;
+	
+	env_paths = ft_split(get_env_path(envp), ' ');
+	i = 0;
+	while (env_paths[i])
+	{
+		temp_path = ft_strjoin(env_paths[i], "/");
+		path = ft_strjoin(temp_path, cmd);
+		free(temp_path);
+		if (access(path, F_OK | X_OK))
+		{
+			// free_arr
+			return(path);
+		}
+		free(path);
+		++i;
+	}
+	return (cmd);
 }
 
 void execute(char* cmd, char *envp[])
@@ -25,7 +79,7 @@ void execute(char* cmd, char *envp[])
 		ft_putstr_fd("execute", 2);
 	
 	l_cmd = ft_split(cmd, ' ');
-	path = get_path(l_cmd[0], envp);
+	path = find_path(l_cmd[0], envp);
 
 	// execve(path, l_cmd, envp)
 	// if execve fails, handle error, print error message, free and exit
