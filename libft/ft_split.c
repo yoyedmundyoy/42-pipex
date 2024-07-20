@@ -51,7 +51,7 @@ static char	**append_word(char **result, char *word, int n_words)
 	char	**new_result;
 	int		i;
 
-	new_result = malloc(sizeof(char *) * n_words + 1);
+	new_result = malloc(sizeof(char *) * (n_words + 1));
 	if (!new_result)
 		return (0);
 	i = 0;

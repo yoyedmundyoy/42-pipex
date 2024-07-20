@@ -1,4 +1,4 @@
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 #include <stdio.h>
 #include <sys/wait.h>
