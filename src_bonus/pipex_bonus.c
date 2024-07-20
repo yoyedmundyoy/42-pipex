@@ -69,50 +69,45 @@ void execute(char* cmd, char *envp[])
 	}
 }
 
-void child(char *argv[], char *envp[], int p_fd[])
-{
-	int f_in;
-
-	f_in = open(argv[1], O_RDONLY, 0777);
-	if (f_in < 0)
-		exit(1);
-	dup2(f_in, STDIN_FILENO);
-	dup2(p_fd[1], STDOUT_FILENO);
-	close(p_fd[0]);
-	execute(argv[2], envp);
-}
-
-void parent(char *argv[], char *envp[], int p_fd[])
-{
-	int f_out;
-
-	f_out = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	if (f_out < 0)
-		exit(1);
-	dup2(f_out, STDOUT_FILENO);
-	dup2(p_fd[0], STDIN_FILENO);
-	close(p_fd[1]);
-	execute(argv[3], envp);
-}
-
-int main(int argc, char *argv[], char *envp[])
+void exec_pipe(char* cmd, char *envp[])
 {
 	int p_fd[2];
 	pid_t pid;
 
-	if (argc != 5)
-	{
-		ft_printf("Usage: ./pipex infile cmd1 cmd2 outfile\n");
-		exit(1);
-	}
 	if (pipe(p_fd) < 0)
 		exit(1);
 	pid = fork();
-	if (pid < 0)
-		exit(1);
 	if (!pid)
-		child(argv, envp, p_fd);
-	wait(NULL);
-	parent(argv, envp, p_fd);
+	{
+		close(p_fd[0]);
+		dup2(p_fd[1], STDOUT_FILENO);
+		execute(cmd, envp);
+	}
+	else
+	{
+		close(p_fd[1]);
+		dup2(p_fd[0], STDIN_FILENO);
+	}
+}
+
+int main(int argc, char *argv[], char *envp[])
+{
+	int i;
+	int f_in;
+	int f_out;
+
+	if (argc != 5)
+	{
+		ft_printf("Usage: ./pipex file1 cmd1 cmd2 cmd3 ... cmdn file2");
+		exit(1);
+	}
+	i = 2;
+	f_in = open(argv[1], O_RDONLY, 0777);
+	f_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	dup2(f_in, STDIN_FILENO);
+	while (i < argc - 2)
+		exec_pipe(argv[i++], envp);
+	dup2(f_out, STDOUT_FILENO);
+	execute(argv[argc - 2], envp);
 }
 
