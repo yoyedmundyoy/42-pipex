@@ -4,8 +4,12 @@ SRCS := src/pipex.c $(LIBFT)
 CC := cc
 CFLAGS := -Wall -Wextra -Werror
 RM := rm -rf
+SRCS_BONUS := src_bonus/pipex_bonus.c $(LIBFT)
 
 all: $(NAME)
+
+bonus: fclean $(SRCS_BONUS)
+	@$(CC) $(CFLAGS) $(SRCS_BONUS) -o $(NAME)
 
 $(NAME): $(SRCS)
 	@$(CC) $(CFLAGS) $(SRCS) -o $(NAME)

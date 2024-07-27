@@ -75,7 +75,10 @@ void child(char *argv[], char *envp[], int p_fd[])
 
 	f_in = open(argv[1], O_RDONLY, 0777);
 	if (f_in < 0)
+	{
+		ft_printf("pipex: %s: No such file or directory\n", argv[1]);
 		exit(1);
+	}
 	dup2(f_in, STDIN_FILENO);
 	dup2(p_fd[1], STDOUT_FILENO);
 	close(p_fd[0]);

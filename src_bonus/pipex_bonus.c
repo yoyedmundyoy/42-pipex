@@ -90,21 +90,70 @@ void exec_pipe(char* cmd, char *envp[])
 	}
 }
 
+void here_doc(int argc, char *delimiter)
+{
+	pid_t pid;
+	int p_fd[2];
+	char *line;
+
+	if (argc < 6)
+		exit(1);
+	if (pipe(p_fd) < 0)
+		exit(1);
+	pid = fork();
+	if (!pid)
+	{
+		close(p_fd[0]);
+		while (1)
+		{
+			line = get_next_line(0);
+			if (ft_strcmp(line, delimiter) == '\n')
+			{
+				free(line);
+				exit(0);
+			}
+			ft_putstr_fd(line, p_fd[1]);
+			free(line);
+		}
+	}
+	else
+	{
+		close(p_fd[1]);
+		dup2(p_fd[0], STDIN_FILENO);
+		wait(NULL);
+	}
+}
+
 int main(int argc, char *argv[], char *envp[])
 {
 	int i;
 	int f_in;
 	int f_out;
 
-	if (argc != 5)
+	if (argc < 5)
 	{
 		ft_printf("Usage: ./pipex file1 cmd1 cmd2 cmd3 ... cmdn file2");
 		exit(1);
 	}
-	i = 2;
-	f_in = open(argv[1], O_RDONLY, 0777);
-	f_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	dup2(f_in, STDIN_FILENO);
+	if (!ft_strcmp(argv[1], "here_doc"))
+	{
+		i = 3;
+		f_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0777);
+		printf("Delimiter: %s\n", argv[2]);
+		here_doc(argc, argv[2]);
+	}
+	else
+	{
+		i = 2;
+		f_in = open(argv[1], O_RDONLY, 0777);
+		if (f_in < 0)
+		{
+			ft_printf("pipex: %s: No such file or directory\n", argv[1]);
+			exit(1);
+		}
+		f_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+		dup2(f_in, STDIN_FILENO);
+	}
 	while (i < argc - 2)
 		exec_pipe(argv[i++], envp);
 	dup2(f_out, STDOUT_FILENO);

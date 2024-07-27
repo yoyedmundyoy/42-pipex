@@ -1,0 +1,3 @@
+this is line 1
+line 2 contains the bear
+and the fish is on this line
